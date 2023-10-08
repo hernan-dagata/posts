@@ -12,7 +12,7 @@ class CategoryController extends Controller
         $categories = Category::all();
         return response()->json($categories, 200);
     }
-
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -44,5 +44,41 @@ class CategoryController extends Controller
     
         return response()->json(['message' => 'Categoría eliminada exitosamente.'], 200);
     }
+
+    public function indexView()
+    {
+        $categories = Category::all();
+        return view('categories.index', ['categories' => $categories]);
+    }
+
+    public function storeView(Request $request)
+    {
+        $request->validate(['nombre' => 'required|string|max:255']);
+        Category::create($request->all());
+        return redirect('/categories');
+    }
+
+    public function destroyView(Category $category)
+    {
+        $category->delete();
+        return redirect('/categories')->with('success', 'Categoría eliminada con éxito.');
+    }
+
+    public function editView(Category $category)
+    {
+        return view('categories.edit', ['category' => $category]);
+    }
     
+    public function updateView(Request $request, Category $category)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+        ]);
+        
+        $category->update($request->all());
+        return redirect('/categories')->with('success', 'Categoría actualizada con éxito.');
+    }
+
 }
+
+?>

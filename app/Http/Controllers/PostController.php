@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Category;
 
 class PostController extends Controller
 {
@@ -45,4 +46,46 @@ class PostController extends Controller
         $post->delete();
         return response()->json(['message' => 'Post eliminado exitosamente.'], 200);
     }
+
+    public function indexView()
+    {
+        $posts = Post::with('category')->get();
+        $categories = Category::all();
+        return view('posts.index', ['posts' => $posts, 'categories' => $categories]);
+    }
+
+    public function storeView(Request $request)
+    {
+        $request->validate([
+            'idCategoria' => 'required|integer|exists:categories,id',
+            'descripcion' => 'required|string|max:255'  
+        ]);
+        
+        Post::create($request->all());
+        return redirect('/posts');
+    }
+
+    public function destroyView(Post $post)
+    {
+        $post->delete();
+        return redirect('/posts')->with('success', 'Post eliminado con éxito.');
+    }
+
+    public function editView(Post $post)
+    {
+        return view('posts.edit', ['post' => $post]);
+    }
+
+    public function updateView(Request $request, Post $post)
+    {
+        $request->validate([
+            'idCategoria' => 'required|integer|exists:categories,id',
+            'descripcion' => 'required|string|max:255'
+        ]);
+        
+        $post->update($request->all());
+        return redirect('/posts')->with('success', 'Post actualizado con éxito.');
+    }
 }
+
+?>
